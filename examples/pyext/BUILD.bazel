@@ -1,0 +1,28 @@
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_shared_library",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+rust_shared_library(
+    name = "strsum",
+    srcs = ["strsum.rs"],
+    deps = [
+        "@crate_index//:pyo3",
+    ],
+)
+
+genrule(
+    name = "strsum_so",
+    srcs = [":strsum"],
+    outs = ["strsum.so"],
+    cmd = "cp $< $@",
+)
+
+py_test(
+    name = "strsum_test",
+    srcs = ["strsum_test.py"],
+    data = [":strsum_so"],
+)

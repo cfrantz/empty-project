@@ -1,0 +1,19 @@
+[package]
+name = "imgui_rs_deps"
+version = "0.0.0"
+edition = "2018"
+
+[lib]
+path = "empty_file.rs"
+
+[dependencies]
+bitflags = "1"
+cfg-if = "1"
+chlorine = "1.0.7"
+glow = "0.12"
+image = "0.23"
+memoffset = "0.6"
+mint = "0.5.6"
+parking_lot = "0.12"
+sdl2 = "0.34.5"
+winit = { version = "0.27.2", default-features = false }

@@ -1,0 +1,19 @@
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+rust_binary(
+    name = "basic",
+    srcs = ["basic.rs"],
+    deps = [
+        "@crate_index//:glow",
+        "@crate_index//:sdl2",
+        "@imgui_rs//imgui",
+        "@imgui_rs//imgui-glow-renderer",
+        "@imgui_rs//imgui-sdl2-support",
+    ],
+)

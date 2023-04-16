@@ -1,0 +1,46 @@
+workspace(name = "empty_project")
+
+# Rust Toolchain
+load("//third_party/rust:repos.bzl", "rust_repos")
+rust_repos()
+load("//third_party/rust:deps.bzl", "rust_deps")
+rust_deps()
+
+# Python Toolchain
+load("//third_party/python:repos.bzl", "python_repos")
+python_repos()
+load("//third_party/python:deps.bzl", "python_deps")
+python_deps()
+
+load("//third_party/imgui_rs:repos.bzl", "imgui_rs_repos")
+imgui_rs_repos(local = "../imgui-rs")
+
+# Use crate_universe to pull in crates.io dependencies specified in
+# the Cargo.toml files.
+load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
+crate_universe_dependencies()
+
+load("@rules_rust//crate_universe:defs.bzl", "crates_repository", "crate")
+crates_repository(
+    name = "crate_index",
+    cargo_lockfile = "//:Cargo.lock",
+    lockfile = "//:Cargo.Bazel.lock",
+    manifests = [
+        "//:Cargo.toml",
+        "//third_party/imgui_rs:Cargo.toml",
+        "//third_party/pyo3:Cargo.toml",
+    ],
+    annotations = {
+        "sdl2-sys": [
+            crate.annotation(
+                patch_args = ["-p2"],
+                patches = [
+                    "@//third_party/sdl2:sdl2-sys-linking.patch",
+                ],
+            ),
+        ],
+    },
+)
+
+load("@crate_index//:defs.bzl", "crate_repositories")
+crate_repositories()

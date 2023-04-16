@@ -1,0 +1,10 @@
+[package]
+name = "pyo3_deps"
+version = "0.0.0"
+edition = "2018"
+
+[lib]
+path = "empty_file.rs"
+
+[dependencies]
+pyo3 = "0.18"
