@@ -12,6 +12,9 @@ python_repos()
 load("//third_party/python:deps.bzl", "python_deps")
 python_deps()
 
+load("//third_party/pybind11:repos.bzl", "pybind11_repos")
+pybind11_repos()
+
 load("//third_party/imgui_rs:repos.bzl", "imgui_rs_repos")
 imgui_rs_repos(local = "../imgui-rs")
 
@@ -29,6 +32,7 @@ crates_repository(
         "//:Cargo.toml",
         "//third_party/imgui_rs:Cargo.toml",
         "//third_party/pyo3:Cargo.toml",
+        "//third_party/rust:Cargo.toml",
     ],
     annotations = {
         "sdl2-sys": [

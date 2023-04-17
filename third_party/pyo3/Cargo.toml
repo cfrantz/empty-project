@@ -7,4 +7,4 @@ edition = "2018"
 path = "empty_file.rs"
 
 [dependencies]
-pyo3 = "0.18"
+pyo3 = { version = "0.18", features = ["anyhow"] }

@@ -1,0 +1,35 @@
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_shared_library",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+rust_shared_library(
+    name = "app",
+    srcs = ["app.rs"],
+    deps = [
+        "//third_party/imgui_rs:python_gui",
+        "@crate_index//:anyhow",
+        "@crate_index//:glow",
+        "@crate_index//:pyo3",
+        "@crate_index//:sdl2",
+        "@imgui_rs//imgui",
+        "@imgui_rs//imgui-glow-renderer",
+        "@imgui_rs//imgui-sdl2-support",
+    ],
+)
+
+genrule(
+    name = "app_so",
+    srcs = [":app"],
+    outs = ["app.so"],
+    cmd = "cp $< $@",
+)
+
+py_binary(
+    name = "app_shell",
+    srcs = ["app_shell.py"],
+    data = [":app_so"],
+)

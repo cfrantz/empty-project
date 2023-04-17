@@ -1,3 +1,45 @@
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_library",
+)
+
 package(default_visibility = ["//visibility:public"])
 
 exports_files(glob(["**"]))
+
+genrule(
+    name = "generate_python_bindings",
+    srcs = [
+        "generate_python_bindings.py",
+        "@imgui_rs//imgui-sys/third-party:imgui_srcs",
+    ],
+    outs = ["gui_generated.cpp"],
+    cmd = """
+        python3 $(location :generate_python_bindings.py) \
+            --include=external/imgui_rs/imgui-sys/third-party/imgui-master/imgui \
+            --output=$@
+    """,
+    tools = ["generate_python_bindings.py"],
+)
+
+cc_library(
+    name = "python_bindings",
+    srcs = ["gui.cpp"],
+    includes = [
+        "../../external/imgui_rs/imgui-sys/third-party/imgui-master/imgui",
+    ],
+    textual_hdrs = ["@imgui_rs//imgui-sys/third-party:imgui_srcs"],
+    deps = [
+        "@imgui_rs//imgui-sys:imgui_master",
+        "@pybind11",
+    ],
+)
+
+rust_library(
+    name = "python_gui",
+    srcs = ["gui.rs"],
+    deps = [
+        ":python_bindings",
+        "@crate_index//:pyo3",
+    ],
+)

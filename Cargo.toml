@@ -2,4 +2,5 @@
 members = [
     "third_party/imgui_rs",
     "third_party/pyo3",
+    "third_party/rust",
 ]

@@ -1,0 +1,2 @@
+build --action_env=BAZEL_CXXOPTS="-std=gnu++14"
+build --cxxopt='-std=gnu++14'
