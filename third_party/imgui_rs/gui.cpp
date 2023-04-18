@@ -46,11 +46,6 @@ PYBIND11_MODULE(gui, gui)
     template_ImVector<ImDrawVert>(gui, "Vector_DrawVert");
     template_ImVector<ImFontGlyph>(gui, "Vector_FontGlyph");
 
-    /*
-    py::enum_<ImGuiKey>(gui, "Key", py::arithmetic())
-        .export_values();
-    */
-
     py::class_<ImVec2> Vec2(gui, "Vec2");
     Vec2.def_readwrite("x", &ImVec2::x);
     Vec2.def_readwrite("y", &ImVec2::y);
@@ -267,14 +262,12 @@ PYBIND11_MODULE(gui, gui)
     , py::return_value_policy::automatic_reference);
     gui.def("get_scroll_y", &ImGui::GetScrollY
     , py::return_value_policy::automatic_reference);
-    /*
-    gui.def("set_scroll_x", &ImGui::SetScrollX
+    gui.def("set_scroll_x", py::overload_cast<float>(&ImGui::SetScrollX)
     , py::arg("scroll_x")
     , py::return_value_policy::automatic_reference);
-    gui.def("set_scroll_y", &ImGui::SetScrollY
+    gui.def("set_scroll_y", py::overload_cast<float>(&ImGui::SetScrollY)
     , py::arg("scroll_y")
     , py::return_value_policy::automatic_reference);
-    */
     gui.def("get_scroll_max_x", &ImGui::GetScrollMaxX
     , py::return_value_policy::automatic_reference);
     gui.def("get_scroll_max_y", &ImGui::GetScrollMaxY
@@ -285,16 +278,14 @@ PYBIND11_MODULE(gui, gui)
     gui.def("set_scroll_here_y", &ImGui::SetScrollHereY
     , py::arg("center_y_ratio") = 0.5f
     , py::return_value_policy::automatic_reference);
-    /*
-    gui.def("set_scroll_from_pos_x", &ImGui::SetScrollFromPosX
+    gui.def("set_scroll_from_pos_x", py::overload_cast<float, float>(&ImGui::SetScrollFromPosX)
     , py::arg("local_x")
     , py::arg("center_x_ratio") = 0.5f
     , py::return_value_policy::automatic_reference);
-    gui.def("set_scroll_from_pos_y", &ImGui::SetScrollFromPosY
+    gui.def("set_scroll_from_pos_y", py::overload_cast<float, float>(&ImGui::SetScrollFromPosY)
     , py::arg("local_y")
     , py::arg("center_y_ratio") = 0.5f
     , py::return_value_policy::automatic_reference);
-    */
     gui.def("push_font", &ImGui::PushFont
     , py::arg("font")
     , py::return_value_policy::automatic_reference);
@@ -564,8 +555,7 @@ PYBIND11_MODULE(gui, gui)
     , py::arg("tint_col") = ImVec4(1,1,1,1)
     , py::arg("border_col") = ImVec4(0,0,0,0)
     , py::return_value_policy::automatic_reference);
-    /*
-    gui.def("image_button", &ImGui::ImageButton
+    gui.def("image_button", py::overload_cast<const char *, ImTextureID, const ImVec2 &, const ImVec2 &, const ImVec2 &, const ImVec4 &, const ImVec4 &>(&ImGui::ImageButton)
     , py::arg("str_id")
     , py::arg("user_texture_id")
     , py::arg("size")
@@ -574,7 +564,6 @@ PYBIND11_MODULE(gui, gui)
     , py::arg("bg_col") = ImVec4(0,0,0,0)
     , py::arg("tint_col") = ImVec4(1,1,1,1)
     , py::return_value_policy::automatic_reference);
-    */
     gui.def("begin_combo", &ImGui::BeginCombo
     , py::arg("label")
     , py::arg("preview_value")
@@ -1291,11 +1280,9 @@ PYBIND11_MODULE(gui, gui)
     , py::return_value_policy::automatic_reference);
     gui.def("table_get_row_index", &ImGui::TableGetRowIndex
     , py::return_value_policy::automatic_reference);
-    /*
-    gui.def("table_get_column_name", &ImGui::TableGetColumnName
+    gui.def("table_get_column_name", py::overload_cast<int>(&ImGui::TableGetColumnName)
     , py::arg("column_n") = -1
     , py::return_value_policy::automatic_reference);
-    */
     gui.def("table_get_column_flags", &ImGui::TableGetColumnFlags
     , py::arg("column_n") = -1
     , py::return_value_policy::automatic_reference);
@@ -1456,12 +1443,10 @@ PYBIND11_MODULE(gui, gui)
     , py::return_value_policy::automatic_reference);
     gui.def("get_main_viewport", &ImGui::GetMainViewport
     , py::return_value_policy::automatic_reference);
-    /*
-    gui.def("get_background_draw_list", &ImGui::GetBackgroundDrawList
+    gui.def("get_background_draw_list", py::overload_cast<>(&ImGui::GetBackgroundDrawList)
     , py::return_value_policy::automatic_reference);
-    gui.def("get_foreground_draw_list", &ImGui::GetForegroundDrawList
+    gui.def("get_foreground_draw_list", py::overload_cast<>(&ImGui::GetForegroundDrawList)
     , py::return_value_policy::automatic_reference);
-    */
     gui.def("is_rect_visible", py::overload_cast<const ImVec2 &>(&ImGui::IsRectVisible)
     , py::arg("size")
     , py::return_value_policy::automatic_reference);
@@ -1526,18 +1511,16 @@ PYBIND11_MODULE(gui, gui)
     , py::arg("out_g") = 0
     , py::arg("out_b")
     , py::return_value_policy::automatic_reference);
-    /*
-    gui.def("is_key_down", &ImGui::IsKeyDown
+    gui.def("is_key_down", py::overload_cast<ImGuiKey>(&ImGui::IsKeyDown)
     , py::arg("key")
     , py::return_value_policy::automatic_reference);
-    gui.def("is_key_pressed", &ImGui::IsKeyPressed
+    gui.def("is_key_pressed", py::overload_cast<ImGuiKey, bool>(&ImGui::IsKeyPressed)
     , py::arg("key")
     , py::arg("repeat") = true
     , py::return_value_policy::automatic_reference);
-    gui.def("is_key_released", &ImGui::IsKeyReleased
+    gui.def("is_key_released", py::overload_cast<ImGuiKey>(&ImGui::IsKeyReleased)
     , py::arg("key")
     , py::return_value_policy::automatic_reference);
-    */
     gui.def("get_key_pressed_amount", &ImGui::GetKeyPressedAmount
     , py::arg("key")
     , py::arg("repeat_delay")
@@ -1549,18 +1532,16 @@ PYBIND11_MODULE(gui, gui)
     gui.def("set_next_frame_want_capture_keyboard", &ImGui::SetNextFrameWantCaptureKeyboard
     , py::arg("want_capture_keyboard")
     , py::return_value_policy::automatic_reference);
-    /*
-    gui.def("is_mouse_down", &ImGui::IsMouseDown
+    gui.def("is_mouse_down", py::overload_cast<ImGuiMouseButton>(&ImGui::IsMouseDown)
     , py::arg("button")
     , py::return_value_policy::automatic_reference);
-    gui.def("is_mouse_clicked", &ImGui::IsMouseClicked
+    gui.def("is_mouse_clicked", py::overload_cast<ImGuiMouseButton, bool>(&ImGui::IsMouseClicked)
     , py::arg("button")
     , py::arg("repeat") = false
     , py::return_value_policy::automatic_reference);
-    gui.def("is_mouse_released", &ImGui::IsMouseReleased
+    gui.def("is_mouse_released", py::overload_cast<ImGuiMouseButton>(&ImGui::IsMouseReleased)
     , py::arg("button")
     , py::return_value_policy::automatic_reference);
-    */
     gui.def("is_mouse_double_clicked", &ImGui::IsMouseDoubleClicked
     , py::arg("button")
     , py::return_value_policy::automatic_reference);
@@ -1634,13 +1615,6 @@ PYBIND11_MODULE(gui, gui)
     , py::arg("sz_drawvert")
     , py::arg("sz_drawidx")
     , py::return_value_policy::automatic_reference);
-    /*
-    gui.def("get_allocator_functions", &ImGui::GetAllocatorFunctions
-    , py::arg("p_alloc_func")
-    , py::arg("p_free_func")
-    , py::arg("p_user_data")
-    , py::return_value_policy::automatic_reference);
-    */
     py::enum_<ImGuiWindowFlags_>(gui, "WindowFlags", py::arithmetic())
         .value("NONE", ImGuiWindowFlags_None)
         .value("NO_TITLE_BAR", ImGuiWindowFlags_NoTitleBar)
@@ -1723,10 +1697,8 @@ PYBIND11_MODULE(gui, gui)
         .value("MOUSE_BUTTON_LEFT", ImGuiPopupFlags_MouseButtonLeft)
         .value("MOUSE_BUTTON_RIGHT", ImGuiPopupFlags_MouseButtonRight)
         .value("MOUSE_BUTTON_MIDDLE", ImGuiPopupFlags_MouseButtonMiddle)
-        /*
-        .value("", ImGuiPopupFlags_MouseButtonMask_)
-        .value("", ImGuiPopupFlags_MouseButtonDefault_)
-        */
+        .value("MOUSE_BUTTON_MASK", ImGuiPopupFlags_MouseButtonMask_)
+        .value("MOUSE_BUTTON_DEFAULT", ImGuiPopupFlags_MouseButtonDefault_)
         .value("NO_OPEN_OVER_EXISTING_POPUP", ImGuiPopupFlags_NoOpenOverExistingPopup)
         .value("NO_OPEN_OVER_ITEMS", ImGuiPopupFlags_NoOpenOverItems)
         .value("ANY_POPUP_ID", ImGuiPopupFlags_AnyPopupId)
@@ -1752,9 +1724,7 @@ PYBIND11_MODULE(gui, gui)
         .value("HEIGHT_LARGEST", ImGuiComboFlags_HeightLargest)
         .value("NO_ARROW_BUTTON", ImGuiComboFlags_NoArrowButton)
         .value("NO_PREVIEW", ImGuiComboFlags_NoPreview)
-        /*
-        .value("", ImGuiComboFlags_HeightMask_)
-        */
+        .value("HEIGHT_MASK", ImGuiComboFlags_HeightMask_)
         .export_values();
 
     py::enum_<ImGuiTabBarFlags_>(gui, "TabBarFlags", py::arithmetic())
@@ -1767,10 +1737,8 @@ PYBIND11_MODULE(gui, gui)
         .value("NO_TOOLTIP", ImGuiTabBarFlags_NoTooltip)
         .value("FITTING_POLICY_RESIZE_DOWN", ImGuiTabBarFlags_FittingPolicyResizeDown)
         .value("FITTING_POLICY_SCROLL", ImGuiTabBarFlags_FittingPolicyScroll)
-        /*
-        .value("", ImGuiTabBarFlags_FittingPolicyMask_)
-        .value("", ImGuiTabBarFlags_FittingPolicyDefault_)
-        */
+        .value("FITTING_POLICY_MASK", ImGuiTabBarFlags_FittingPolicyMask_)
+        .value("FITTING_POLICY_DEFAULT", ImGuiTabBarFlags_FittingPolicyDefault_)
         .export_values();
 
     py::enum_<ImGuiTabItemFlags_>(gui, "TabItemFlags", py::arithmetic())
@@ -1821,9 +1789,7 @@ PYBIND11_MODULE(gui, gui)
         .value("SCROLL_Y", ImGuiTableFlags_ScrollY)
         .value("SORT_MULTI", ImGuiTableFlags_SortMulti)
         .value("SORT_TRISTATE", ImGuiTableFlags_SortTristate)
-        /*
-        .value("", ImGuiTableFlags_SizingMask_)
-        */
+        .value("SIZING_MASK", ImGuiTableFlags_SizingMask_)
         .export_values();
 
     py::enum_<ImGuiTableColumnFlags_>(gui, "TableColumnFlags", py::arithmetic())
@@ -1850,12 +1816,10 @@ PYBIND11_MODULE(gui, gui)
         .value("IS_VISIBLE", ImGuiTableColumnFlags_IsVisible)
         .value("IS_SORTED", ImGuiTableColumnFlags_IsSorted)
         .value("IS_HOVERED", ImGuiTableColumnFlags_IsHovered)
-        /*
-        .value("", ImGuiTableColumnFlags_WidthMask_)
-        .value("", ImGuiTableColumnFlags_IndentMask_)
-        .value("", ImGuiTableColumnFlags_StatusMask_)
-        .value("", ImGuiTableColumnFlags_NoDirectResize_)
-        */
+        .value("WIDTH_MASK", ImGuiTableColumnFlags_WidthMask_)
+        .value("INDENT_MASK", ImGuiTableColumnFlags_IndentMask_)
+        .value("STATUS_MASK", ImGuiTableColumnFlags_StatusMask_)
+        .value("NO_DIRECT_RESIZE", ImGuiTableColumnFlags_NoDirectResize_)
         .export_values();
 
     py::enum_<ImGuiTableRowFlags_>(gui, "TableRowFlags", py::arithmetic())
@@ -2084,19 +2048,17 @@ PYBIND11_MODULE(gui, gui)
         .value("RESERVED_FOR_MOD_SUPER", ImGuiKey_ReservedForModSuper)
         .value("COUNT", ImGuiKey_COUNT)
         .value("MOD_NONE", ImGuiMod_None)
-        .value("CTRL", ImGuiMod_Ctrl)
-        .value("SHIFT", ImGuiMod_Shift)
-        .value("ALT", ImGuiMod_Alt)
-        .value("SUPER", ImGuiMod_Super)
-        .value("SHORTCUT", ImGuiMod_Shortcut)
-        /*
-        .value("", ImGuiMod_Mask_)
-        .value("BEGIN", ImGuiKey_NamedKey_BEGIN)
-        .value("END", ImGuiKey_NamedKey_END)
-        .value("COUNT", ImGuiKey_NamedKey_COUNT)
-        .value("SIZE", ImGuiKey_KeysData_SIZE)
-        .value("OFFSET", ImGuiKey_KeysData_OFFSET)
-        */
+        .value("MOD_CTRL", ImGuiMod_Ctrl)
+        .value("MOD_SHIFT", ImGuiMod_Shift)
+        .value("MOD_ALT", ImGuiMod_Alt)
+        .value("MOD_SUPER", ImGuiMod_Super)
+        .value("MOD_SHORTCUT", ImGuiMod_Shortcut)
+        .value("MOD_MASK", ImGuiMod_Mask_)
+        .value("NAMED_KEY_BEGIN", ImGuiKey_NamedKey_BEGIN)
+        .value("NAMED_KEY_END", ImGuiKey_NamedKey_END)
+        .value("NAMED_KEY_COUNT", ImGuiKey_NamedKey_COUNT)
+        .value("KEYS_DATA_SIZE", ImGuiKey_KeysData_SIZE)
+        .value("KEYS_DATA_OFFSET", ImGuiKey_KeysData_OFFSET)
         .export_values();
 
     py::enum_<ImGuiNavInput>(gui, "NavInput", py::arithmetic())
@@ -2230,10 +2192,8 @@ PYBIND11_MODULE(gui, gui)
         .value("MOUSE_BUTTON_LEFT", ImGuiButtonFlags_MouseButtonLeft)
         .value("MOUSE_BUTTON_RIGHT", ImGuiButtonFlags_MouseButtonRight)
         .value("MOUSE_BUTTON_MIDDLE", ImGuiButtonFlags_MouseButtonMiddle)
-        /*
-        .value("", ImGuiButtonFlags_MouseButtonMask_)
-        .value("", ImGuiButtonFlags_MouseButtonDefault_)
-        */
+        .value("MOUSE_BUTTON_MASK", ImGuiButtonFlags_MouseButtonMask_)
+        .value("MOUSE_BUTTON_DEFAULT", ImGuiButtonFlags_MouseButtonDefault_)
         .export_values();
 
     py::enum_<ImGuiColorEditFlags_>(gui, "ColorEditFlags", py::arithmetic())
@@ -2261,13 +2221,11 @@ PYBIND11_MODULE(gui, gui)
         .value("PICKER_HUE_WHEEL", ImGuiColorEditFlags_PickerHueWheel)
         .value("INPUT_RGB", ImGuiColorEditFlags_InputRGB)
         .value("INPUT_HSV", ImGuiColorEditFlags_InputHSV)
-        /*
-        .value("", ImGuiColorEditFlags_DefaultOptions_)
-        .value("", ImGuiColorEditFlags_DisplayMask_)
-        .value("", ImGuiColorEditFlags_DataTypeMask_)
-        .value("", ImGuiColorEditFlags_PickerMask_)
-        .value("", ImGuiColorEditFlags_InputMask_)
-        */
+        .value("DEFAULT_OPTIONS", ImGuiColorEditFlags_DefaultOptions_)
+        .value("DISPLAY_MASK", ImGuiColorEditFlags_DisplayMask_)
+        .value("DATA_TYPE_MASK", ImGuiColorEditFlags_DataTypeMask_)
+        .value("PICKER_MASK", ImGuiColorEditFlags_PickerMask_)
+        .value("INPUT_MASK", ImGuiColorEditFlags_InputMask_)
         .export_values();
 
     py::enum_<ImGuiSliderFlags_>(gui, "SliderFlags", py::arithmetic())
@@ -2276,9 +2234,7 @@ PYBIND11_MODULE(gui, gui)
         .value("LOGARITHMIC", ImGuiSliderFlags_Logarithmic)
         .value("NO_ROUND_TO_FORMAT", ImGuiSliderFlags_NoRoundToFormat)
         .value("NO_INPUT", ImGuiSliderFlags_NoInput)
-        /*
-        .value("", ImGuiSliderFlags_InvalidMask_)
-        */
+        .value("INVALID_MASK", ImGuiSliderFlags_InvalidMask_)
         .export_values();
 
     py::enum_<ImGuiMouseButton_>(gui, "MouseButton", py::arithmetic())
@@ -2396,13 +2352,8 @@ PYBIND11_MODULE(gui, gui)
     IO.def_readwrite("backend_renderer_name", &ImGuiIO::BackendRendererName);
     IO.def_readwrite("backend_platform_user_data", &ImGuiIO::BackendPlatformUserData);
     IO.def_readwrite("backend_renderer_user_data", &ImGuiIO::BackendRendererUserData);
-    /*
     IO.def_readwrite("backend_language_user_data", &ImGuiIO::BackendLanguageUserData);
-    */
     IO.def_readwrite("clipboard_user_data", &ImGuiIO::ClipboardUserData);
-    /*
-    IO.def_readwrite("set_platform_ime_data_fn", &ImGuiIO::SetPlatformImeDataFn);
-    */
     IO.def("add_key_event", &ImGuiIO::AddKeyEvent
     , py::arg("key")
     , py::arg("down")
@@ -2548,14 +2499,15 @@ PYBIND11_MODULE(gui, gui)
     , py::return_value_policy::automatic_reference);
     Payload.def("is_delivery", &ImGuiPayload::IsDelivery
     , py::return_value_policy::automatic_reference);
-    /*
     py::class_<ImGuiTableColumnSortSpecs> TableColumnSortSpecs(gui, "TableColumnSortSpecs");
     TableColumnSortSpecs.def_readwrite("column_user_id", &ImGuiTableColumnSortSpecs::ColumnUserID);
     TableColumnSortSpecs.def_readwrite("column_index", &ImGuiTableColumnSortSpecs::ColumnIndex);
     TableColumnSortSpecs.def_readwrite("sort_order", &ImGuiTableColumnSortSpecs::SortOrder);
-    TableColumnSortSpecs.def_readwrite("sort_direction", &ImGuiTableColumnSortSpecs::SortDirection);
+    TableColumnSortSpecs.def_property("sort_direction",
+        [](ImGuiTableColumnSortSpecs *self) { return self->SortDirection; },
+        [](ImGuiTableColumnSortSpecs *self, int value) { self->SortDirection = value; }
+    );
     TableColumnSortSpecs.def(py::init<>());
-    */
     py::class_<ImGuiTableSortSpecs> TableSortSpecs(gui, "TableSortSpecs");
     TableSortSpecs.def_readwrite("specs", &ImGuiTableSortSpecs::Specs);
     TableSortSpecs.def_readwrite("specs_count", &ImGuiTableSortSpecs::SpecsCount);
@@ -2735,10 +2687,8 @@ PYBIND11_MODULE(gui, gui)
         .value("ROUND_CORNERS_LEFT", ImDrawFlags_RoundCornersLeft)
         .value("ROUND_CORNERS_RIGHT", ImDrawFlags_RoundCornersRight)
         .value("ROUND_CORNERS_ALL", ImDrawFlags_RoundCornersAll)
-        /*
-        .value("", ImDrawFlags_RoundCornersDefault_)
-        .value("", ImDrawFlags_RoundCornersMask_)
-        */
+        .value("ROUND_CORNERS_DEFAULT", ImDrawFlags_RoundCornersDefault_)
+        .value("ROUND_CORNERS_MASK", ImDrawFlags_RoundCornersMask_)
         .export_values();
 
     py::enum_<ImDrawListFlags_>(gui, "DrawListFlags", py::arithmetic())
@@ -3073,9 +3023,18 @@ PYBIND11_MODULE(gui, gui)
     FontConfig.def_readwrite("dst_font", &ImFontConfig::DstFont);
     FontConfig.def(py::init<>());
     py::class_<ImFontGlyph> FontGlyph(gui, "FontGlyph");
-    //FontGlyph.def_readwrite("colored", &ImFontGlyph::Colored);
-    //FontGlyph.def_readwrite("visible", &ImFontGlyph::Visible);
-    //FontGlyph.def_readwrite("codepoint", &ImFontGlyph::Codepoint);
+    FontGlyph.def_property("colored",
+        [](ImFontGlyph *self) { return self->Colored; },
+        [](ImFontGlyph *self, int value) { self->Colored = value; }
+    );
+    FontGlyph.def_property("visible",
+        [](ImFontGlyph *self) { return self->Visible; },
+        [](ImFontGlyph *self, int value) { self->Visible = value; }
+    );
+    FontGlyph.def_property("codepoint",
+        [](ImFontGlyph *self) { return self->Codepoint; },
+        [](ImFontGlyph *self, int value) { self->Codepoint = value; }
+    );
     FontGlyph.def_readwrite("advance_x", &ImFontGlyph::AdvanceX);
     FontGlyph.def_readwrite("x0", &ImFontGlyph::X0);
     FontGlyph.def_readwrite("y0", &ImFontGlyph::Y0);

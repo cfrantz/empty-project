@@ -18,7 +18,13 @@ genrule(
         python3 $(location :generate_python_bindings.py) \
             --include=external/imgui_rs/imgui-sys/third-party/imgui-master/imgui \
             --output=$@
+
+        echo "================================================================="
+        echo "You need to manually copy the generated bindings:"
+        echo "cp $@ third_party/imgui_rs/gui.cpp"
+        echo "================================================================="
     """,
+    tags = ["manual"],
     tools = ["generate_python_bindings.py"],
 )
 

@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+###########################################################################
+#
+# This file was adapted from https://github.com/cammm/deargui.
+#
+###########################################################################
 import argparse
 import os
 import re
@@ -259,12 +265,14 @@ EXCLUDES = set(
     'ImFontAtlas::GetMouseCursorTexData',
     'ImFont::CalcTextSizeA',
     'ImGui::SetNextWindowSizeConstraints',
+    'ImGui::GetAllocatorFunctions',
     'ImGui::SetAllocatorFunctions',
     'ImGui::MemAlloc',
     'ImGui::MemFree',
     'ImGuiIO::GetClipboardTextFn',
     'ImGuiIO::SetClipboardTextFn',
     'ImGuiIO::ImeSetInputScreenPosFn',
+    'ImGuiIO::SetPlatformImeDataFn',
     'ImDrawCmd::UserCallback',
     'ImColor::HSV',
     'ImNewDummy',
@@ -273,7 +281,24 @@ EXCLUDES = set(
 ])
 
 OVERLOADED = set([
+    # Many of these have overloads in `imgui_internal.h` and wont be
+    # detected as overloads by parsing `imgui.h`.  We supply the overloaded
+    # names by hand.
     'ImGui::IsPopupOpen',
+    'ImGui::SetScrollX',
+    'ImGui::SetScrollY',
+    'ImGui::SetScrollFromPosX',
+    'ImGui::SetScrollFromPosY',
+    'ImGui::ImageButton',
+    'ImGui::TableGetColumnName',
+    'ImGui::GetBackgroundDrawList',
+    'ImGui::GetForegroundDrawList',
+    'ImGui::IsKeyDown',
+    'ImGui::IsKeyPressed',
+    'ImGui::IsKeyReleased',
+    'ImGui::IsMouseDown',
+    'ImGui::IsMouseClicked',
+    'ImGui::IsMouseReleased',
 ])
 
 DEFAULTS = {
@@ -308,7 +333,11 @@ def format_type(name):
 def format_enum(name):
     name = name.replace('ImGui', '')
     name = name.replace('Im', '')
-    name = name.split('_')[-1]
+    # Some of the ImGuiKey definitions have Mod_<thing> where <thing> might
+    # be a duplicate.  Keep Mod_.  For all others, discard the component of
+    # the name before the first underscore.
+    if not name.startswith('Mod_'):
+        (_, name) = name.split('_', 1)
     name = snakecase(name).upper()
     name = name.replace('__', '_')
     name = name.rstrip('_')
@@ -362,6 +391,9 @@ def is_function_mappable(cursor):
 def is_function_void_return(cursor):
     result = cursor.type.get_result()
     return result.kind == cindex.TypeKind.VOID
+
+def is_property_bitfield(cursor):
+    return cursor.get_bitfield_width() >= 0
 
 def is_property_mappable(cursor):
     if is_excluded(cursor):
@@ -427,12 +459,18 @@ def write_pyargs(arguments):
         out(', py::arg("{}"){}'.format(format_attribute(argument.spelling), default))
 
 def parse_enum(cursor):
+    children = list(cursor.get_children())
+    if not children:
+        # An enum that doesn't have any children is "predeclared".
+        # Don't emit anything as we'll encounter its full definition later.
+        return
+
     out('py::enum_<{cname}>(gui, "{pyname}", py::arithmetic())'.format(
         cname=name(cursor),
         pyname=format_type(cursor.spelling)
     ))
     out.indent += 1
-    for value in cursor.get_children():
+    for value in children:
         out('.value("{pyname}", {cname})'.format(
             pyname=format_enum(value.spelling),
             cname=value.spelling
@@ -454,10 +492,29 @@ def parse_field(cursor, cls):
     pyname = format_attribute(cursor.spelling)
     cname = name(cursor)
     if is_property_mappable(cursor):
+        # ImGui uses bitfields in a few places.  Since we can't get struct
+        # addresses of bitfields, we'll supply lambdas as accessors.
+        bf = is_property_bitfield(cursor)
         if is_property_readonly(cursor):
-            out('{}.def_readonly("{}", &{});'.format(module(cls), pyname, cname))
+            if bf:
+                (cname, member) = cname.split('::')
+                out('{}.def_property("{}", []({} *self) { return self->{}; });'.format(
+                    module(cls), pyname, cname, member))
+            else:
+                out('{}.def_readonly("{}", &{});'.format(module(cls), pyname, cname))
         else:
-            out('{}.def_readwrite("{}", &{});'.format(module(cls), pyname, cname))
+            if bf:
+                (cname, member) = cname.split('::')
+                out('{}.def_property("{}",\n'
+                    '        []({} *self) {{ return self->{}; }},\n'
+                    '        []({} *self, int value) {{ self->{} = value; }}\n'
+                    '    );'.format(module(cls), pyname,
+                                    cname, member,
+                                    cname, member,
+                             )
+                    )
+            else:
+                out('{}.def_readwrite("{}", &{});'.format(module(cls), pyname, cname))
 
 def should_wrap_function(cursor):
     if cursor.type.is_function_variadic():
