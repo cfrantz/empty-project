@@ -16,7 +16,9 @@ load("//third_party/pybind11:repos.bzl", "pybind11_repos")
 pybind11_repos()
 
 load("//third_party/imgui_rs:repos.bzl", "imgui_rs_repos")
-imgui_rs_repos(local = "../imgui-rs")
+imgui_rs_repos(
+    #local = "../imgui-rs"
+)
 
 # Use crate_universe to pull in crates.io dependencies specified in
 # the Cargo.toml files.

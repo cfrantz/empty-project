@@ -1,0 +1,287 @@
+diff --git a/imgui-examples/BUILD.bazel b/imgui-examples/BUILD.bazel
+new file mode 100644
+index 0000000..79db7e9
+--- /dev/null
++++ b/imgui-examples/BUILD.bazel
+@@ -0,0 +1,5 @@
++package(default_visibility = ["//visibility:public"])
++
++exports_files([
++    "Cargo.toml",
++])
+diff --git a/imgui-glium-renderer/BUILD.bazel b/imgui-glium-renderer/BUILD.bazel
+new file mode 100644
+index 0000000..79db7e9
+--- /dev/null
++++ b/imgui-glium-renderer/BUILD.bazel
+@@ -0,0 +1,5 @@
++package(default_visibility = ["//visibility:public"])
++
++exports_files([
++    "Cargo.toml",
++])
+diff --git a/imgui-glow-renderer/BUILD.bazel b/imgui-glow-renderer/BUILD.bazel
+new file mode 100644
+index 0000000..69e5499
+--- /dev/null
++++ b/imgui-glow-renderer/BUILD.bazel
+@@ -0,0 +1,39 @@
++load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
++load(
++    "@rules_rust//rust:defs.bzl",
++    "rust_library",
++)
++
++package(default_visibility = ["//visibility:public"])
++
++exports_files([
++    "Cargo.toml",
++])
++
++rust_library(
++    name = "imgui-glow-renderer",
++    srcs = glob(["src/*.rs"]),
++    aliases = aliases(),
++    crate_features = [
++        "gl_extensions_support",
++        "debug_message_insert_support",
++        "bind_vertex_array_support",
++        "vertex_offset_support",
++        "clip_origin_support",
++        "bind_sampler_support",
++        "polygon_mode_support",
++        "primitive_restart_support",
++    ],
++    crate_root = "src/lib.rs",
++    data = [],
++    edition = "2021",
++    tags = [
++        "crate-name=imgui_glow_renderer",
++    ],
++    version = "0.1.0",
++    deps = [
++        "//imgui",
++        "@crate_index//:glow",
++        "@crate_index//:memoffset",
++    ],
++)
+diff --git a/imgui-sdl2-support/BUILD.bazel b/imgui-sdl2-support/BUILD.bazel
+new file mode 100644
+index 0000000..7b4a6bc
+--- /dev/null
++++ b/imgui-sdl2-support/BUILD.bazel
+@@ -0,0 +1,43 @@
++load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
++load(
++    "@rules_rust//rust:defs.bzl",
++    "rust_binary",
++    "rust_library",
++)
++
++package(default_visibility = ["//visibility:public"])
++
++exports_files([
++    "Cargo.toml",
++])
++
++rust_library(
++    name = "imgui-sdl2-support",
++    srcs = glob(["src/*.rs"]),
++    aliases = aliases(),
++    crate_features = [
++    ],
++    crate_root = "src/lib.rs",
++    data = [],
++    edition = "2021",
++    tags = [
++        "crate-name=imgui_sdl2_support",
++    ],
++    version = "0.1.0",
++    deps = [
++        "//imgui",
++        "@crate_index//:sdl2",
++    ],
++)
++
++rust_binary(
++    name = "sdl2_basic",
++    srcs = ["examples/sdl2_01_basic.rs"],
++    deps = [
++        ":imgui-sdl2-support",
++        "//imgui",
++        "//imgui-glow-renderer",
++        "@crate_index//:glow",
++        "@crate_index//:sdl2",
++    ],
++)
+diff --git a/imgui-sys/BUILD.bazel b/imgui-sys/BUILD.bazel
+new file mode 100644
+index 0000000..c726d6c
+--- /dev/null
++++ b/imgui-sys/BUILD.bazel
+@@ -0,0 +1,53 @@
++load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
++load("@rules_rust//rust:defs.bzl", "rust_library")
++
++package(default_visibility = ["//visibility:public"])
++
++exports_files([
++    "Cargo.toml",
++])
++
++rust_library(
++    name = "imgui-sys",
++    srcs = glob(["src/*.rs"]),
++    aliases = aliases(),
++    crate_features = [
++    ],
++    crate_root = "src/lib.rs",
++    data = [],
++    edition = "2021",
++    tags = [
++        "crate-name=imgui_sys",
++    ],
++    version = "0.1.0",
++    deps = [
++        ":imgui_master",
++        "@crate_index//:cfg-if",
++        "@crate_index//:chlorine",
++        "@crate_index//:mint",
++    ],
++)
++
++cc_library(
++    name = "imgui_master",
++    srcs = ["include_imgui_master.cpp"],
++    textual_hdrs = ["//imgui-sys/third-party:imgui_srcs"],
++)
++
++cc_library(
++    name = "imgui_master_freetype",
++    srcs = ["include_imgui_master_freetype.cpp"],
++    textual_hdrs = ["//imgui-sys/third-party:imgui_srcs"],
++)
++
++cc_library(
++    name = "imgui_docking",
++    srcs = ["include_imgui_docking.cpp"],
++    textual_hdrs = ["//imgui-sys/third-party:imgui_srcs"],
++)
++
++cc_library(
++    name = "imgui_docking_freetype",
++    srcs = ["include_imgui_docking_freetype.cpp"],
++    textual_hdrs = ["//imgui-sys/third-party:imgui_srcs"],
++)
+diff --git a/imgui-sys/third-party/BUILD.bazel b/imgui-sys/third-party/BUILD.bazel
+new file mode 100644
+index 0000000..6a9aa8f
+--- /dev/null
++++ b/imgui-sys/third-party/BUILD.bazel
+@@ -0,0 +1,9 @@
++package(default_visibility = ["//visibility:public"])
++
++filegroup(
++    name = "imgui_srcs",
++    srcs = glob([
++        "**/*.cpp",
++        "**/*.h",
++    ]),
++)
+diff --git a/imgui-winit-glow-renderer-viewports/BUILD.bazel b/imgui-winit-glow-renderer-viewports/BUILD.bazel
+new file mode 100644
+index 0000000..79db7e9
+--- /dev/null
++++ b/imgui-winit-glow-renderer-viewports/BUILD.bazel
+@@ -0,0 +1,5 @@
++package(default_visibility = ["//visibility:public"])
++
++exports_files([
++    "Cargo.toml",
++])
+diff --git a/imgui-winit-support/BUILD.bazel b/imgui-winit-support/BUILD.bazel
+new file mode 100644
+index 0000000..8a00d46
+--- /dev/null
++++ b/imgui-winit-support/BUILD.bazel
+@@ -0,0 +1,30 @@
++load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
++load(
++    "@rules_rust//rust:defs.bzl",
++    "rust_library",
++)
++
++package(default_visibility = ["//visibility:public"])
++
++exports_files([
++    "Cargo.toml",
++])
++
++rust_library(
++    name = "imgui-winit-support",
++    srcs = glob(["src/*.rs"]),
++    aliases = aliases(),
++    crate_features = [
++    ],
++    crate_root = "src/lib.rs",
++    data = [],
++    edition = "2021",
++    tags = [
++        "crate-name=imgui_winit_support",
++    ],
++    version = "0.1.0",
++    deps = [
++        "//imgui",
++        "@crate_index//:winit",
++    ],
++)
+diff --git a/imgui/BUILD.bazel b/imgui/BUILD.bazel
+new file mode 100644
+index 0000000..ba38408
+--- /dev/null
++++ b/imgui/BUILD.bazel
+@@ -0,0 +1,33 @@
++package(default_visibility = ["//visibility:public"])
++
++load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
++load("@rules_rust//rust:defs.bzl", "rust_library")
++
++exports_files([
++    "Cargo.toml",
++])
++
++rust_library(
++    name = "imgui",
++    srcs = glob([
++        "src/*.rs",
++        "src/**/*.rs",
++    ]),
++    aliases = aliases(),
++    crate_features = [
++    ],
++    crate_root = "src/lib.rs",
++    data = [],
++    edition = "2021",
++    tags = [
++        "crate-name=imgui",
++    ],
++    version = "0.1.0",
++    deps = [
++        "//imgui-sys",
++        "@crate_index//:bitflags",
++        "@crate_index//:cfg-if",
++        "@crate_index//:mint",
++        "@crate_index//:parking_lot",
++    ],
++)
+diff --git a/xtask/BUILD.bazel b/xtask/BUILD.bazel
+new file mode 100644
+index 0000000..79db7e9
+--- /dev/null
++++ b/xtask/BUILD.bazel
+@@ -0,0 +1,5 @@
++package(default_visibility = ["//visibility:public"])
++
++exports_files([
++    "Cargo.toml",
++])
