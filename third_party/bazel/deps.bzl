@@ -16,3 +16,8 @@ def bazel_deps():
         name = "python3",
         python_version = "3.11",
     )
+    
+    native.bind(
+        name = "python_headers",
+        actual = "@python3//:python_headers",
+    )

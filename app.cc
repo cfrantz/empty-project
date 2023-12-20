@@ -92,6 +92,14 @@ void App::Draw() {
         }
         if (ImGui::BeginMenu("Edit")) {
             ImGui::MenuItem("Debug Console", nullptr, &console_.visible());
+            if (ImGui::MenuItem("ExamplePy")) {
+                example::proto::Example ex;
+                ex.set_greeting("Hola!");
+                PyProto p(&ex);
+                example_py(p);
+                LOG(INFO) << "After python: " << p->greeting();
+            }
+
             MenuHook("Edit");
             ImGui::EndMenu();
         }
@@ -165,4 +173,8 @@ void App::Draw() {
 }
 
 void App::Help(const std::string& topickey) {}
+void App::example_cpp(PyProto<example::proto::Example> p) {
+    printf("message = %p\n", p.get());
+    LOG(INFO) << p->DebugString();
+}
 }  // namespace project

@@ -8,6 +8,8 @@
 #include <string>
 
 #include "imwidget/imapp.h"
+#include "proto/python_support.h"
+#include "proto/example.pb.h"
 
 namespace project {
 
@@ -28,6 +30,8 @@ class App : public ImApp {
     virtual void MenuBarHook() {}
     virtual void MenuHook(const std::string& name) {}
 
+    void example_cpp(PyProto<example::proto::Example> p);
+    virtual void example_py(PyProto<example::proto::Example> p) {}
   private:
     std::string save_filename_;
     bool plot_demo_ = false;
@@ -45,6 +49,10 @@ class PyApp : public App {
     void MenuHook(const std::string& name) override {
         pybind11::gil_scoped_acquire gil;
         PYBIND11_OVERRIDE_NAME(void, App, "menu_hook", MenuHook, name);
+    }
+
+    void example_py(PyProto<example::proto::Example> p) override {
+        PYBIND11_OVERRIDE_NAME(void, App, "example_py", example_py, p);
     }
 };
 

@@ -1,11 +1,15 @@
 import argparse
+import os
 import sys
 import IPython
 import termios
 from threading import Thread
 
+from google.protobuf.internal import api_implementation
 import application
 from application import gui
+
+#os.putenv('PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION', 'cpp')
 
 flags = argparse.ArgumentParser(prog="app_shell", description="Description")
 flags.add_argument("--interactive", "-i", action="store_true", help="Start an interactive Python shell")
@@ -39,6 +43,11 @@ class App(application.App):
         app = self
         IPython.embed()
         app.running = False
+
+    def example_py(self, p):
+        print(p)
+        p.previous.append(p.greeting)
+        p.greeting = "Guten Tag"
 
 
 def main(args):

@@ -23,6 +23,7 @@ PYBIND11_MODULE(application, m) {
         .def("menu_bar_hook", &App::MenuBarHook)
         .def("menu_hook", &App::MenuHook)
         .def("run", &App::Run, py::call_guard<py::gil_scoped_release>())
+        .def("example_cpp", &App::example_cpp)
         .def_readwrite("running", &App::running_)
         .def_readwrite("clear_color", &App::clear_color_)
         ;

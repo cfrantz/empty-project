@@ -1,2 +1,8 @@
 build --cxxopt=-std=c++17 --host_cxxopt=-std=c++17
+
+# For linking our application as a python shared object
 build --experimental_cc_shared_library
+
+# Inform protobuf that we want to use the C++ implementation in python.
+build --define use_fast_cpp_protos=true
+
