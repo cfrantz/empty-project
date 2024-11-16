@@ -10,6 +10,6 @@ cc_library(
     hdrs = [":headers"],
     includes = ["include"],
     deps = [
-        "@python3//:python_headers",
+        "@python_3_12//:python_headers",
     ],
 )

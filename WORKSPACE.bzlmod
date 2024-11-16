@@ -6,12 +6,6 @@ rust_repos()
 load("//third_party/rust:deps.bzl", "rust_deps")
 rust_deps()
 
-# Python Toolchain
-load("//third_party/python:repos.bzl", "python_repos")
-python_repos()
-load("//third_party/python:deps.bzl", "python_deps")
-python_deps()
-
 load("//third_party/pybind11:repos.bzl", "pybind11_repos")
 pybind11_repos()
 

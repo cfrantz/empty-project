@@ -8,6 +8,7 @@ class Application(object):
         app.gui.begin("Python Window")
         app.gui.text("Hello from Python!")
         app.gui.end()
+        #pass
 
     def run(self):
         while self.inner.prepare_frame():
