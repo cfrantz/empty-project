@@ -5,16 +5,11 @@ from examples.pygui import libapp
 from examples.pygui.libapp import gui
 
 class Application(object):
-    @staticmethod
-    def runner():
-        a = Application()
-        a.run()
-        raise SystemExit
-
     def __init__(self):
-        self.inner = libapp.Application()
-        self.inner.set_scale(2.0)
+        self.running = True
+        self.inner = None
         self.show_style_editor = False
+        self.show_demo_window = False
 
     def extra_window(self, ui):
         gui.begin("Python Window")
@@ -25,11 +20,15 @@ class Application(object):
     def style_editor(self):
         if not self.show_style_editor:
             return
-        
         (window, self.show_style_editor) = gui.begin("Style Editor", self.show_style_editor)
         if window:
             gui.show_style_editor(gui.get_style())
         gui.end()
+
+    def demo_window(self):
+        if not self.show_demo_window:
+            return
+        self.show_demo_window = gui.show_demo_window(self.show_demo_window)
 
     def menu_bar(self):
         gui.begin_main_menu_bar()
@@ -48,16 +47,27 @@ class Application(object):
                 self.show_style_editor = True
             gui.end_menu()
 
+        if gui.begin_menu("View"):
+            if gui.menu_item("Demo Window"):
+                self.show_demo_window = True
+            gui.end_menu()
+
         gui.end_main_menu_bar()
         pass
 
     def run(self):
-        while ui := self.inner.prepare_frame():
-            self.menu_bar()
-            self.style_editor()
-            self.inner.rust_window(ui)
-            self.extra_window(ui)
-            self.inner.render_frame()
+        self.inner = libapp.Application()
+        self.inner.set_scale(0.0)
+        while self.running:
+            if ui := self.inner.prepare_frame():
+                self.menu_bar()
+                self.style_editor()
+                self.demo_window()
+                self.inner.rust_window(ui)
+                self.extra_window(ui)
+                self.inner.render_frame()
+            else:
+                self.running = False
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(prog="app", description = "Sample App")
@@ -65,8 +75,11 @@ if __name__ == '__main__':
     args = p.parse_args()
 
     if args.interactive:
-        thread = Thread(target=Application.runner, daemon=True)
+        a = Application()
+        thread = Thread(target=a.run)
         thread.start()
         IPython.embed()
+        a.running = False
     else:
-        Application.runner()
+        a = Application()
+        a.run()

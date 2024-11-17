@@ -119,7 +119,7 @@ new file mode 100644
 index 0000000..c726d6c
 --- /dev/null
 +++ b/imgui-sys/BUILD.bazel
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,54 @@
 +load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 +load("@rules_rust//rust:defs.bzl", "rust_library")
 +
@@ -134,6 +134,7 @@ index 0000000..c726d6c
 +    srcs = glob(["src/*.rs"]),
 +    aliases = aliases(),
 +    crate_features = [
++        "docking",
 +    ],
 +    crate_root = "src/lib.rs",
 +    data = [],
@@ -143,7 +144,7 @@ index 0000000..c726d6c
 +    ],
 +    version = "0.1.0",
 +    deps = [
-+        ":imgui_master",
++        ":imgui_docking",
 +        "@crate_index//:cfg-if",
 +        "@crate_index//:chlorine",
 +        "@crate_index//:mint",
@@ -240,7 +241,7 @@ new file mode 100644
 index 0000000..ba38408
 --- /dev/null
 +++ b/imgui/BUILD.bazel
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,35 @@
 +package(default_visibility = ["//visibility:public"])
 +
 +load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
@@ -258,6 +259,8 @@ index 0000000..ba38408
 +    ]),
 +    aliases = aliases(),
 +    crate_features = [
++        "docking",
++        "tables-api",
 +    ],
 +    crate_root = "src/lib.rs",
 +    data = [],

@@ -22,6 +22,8 @@ HEADER = """
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 #include <limits>
+
+#define IMGUI_HAS_DOCK       1
 #include "imgui.h"
 #include "imgui_internal.h"
 namespace py = pybind11;
@@ -269,6 +271,11 @@ EXCLUDES = set(
     'ImGui::SetAllocatorFunctions',
     'ImGui::MemAlloc',
     'ImGui::MemFree',
+    'ImGui::GetPlatformIO',
+    'ImGui::CreateContext',
+    'ImGui::DestroyContext',
+    'ImGui::GetCurrentContext',
+    'ImGui::SetCurrentContext',
     'ImGuiIO::GetClipboardTextFn',
     'ImGuiIO::SetClipboardTextFn',
     'ImGuiIO::ImeSetInputScreenPosFn',
@@ -278,6 +285,7 @@ EXCLUDES = set(
     'ImNewDummy',
     'ImGuiTextBuffer',
     'CustomRect',
+    'ImGuiPlatformIO',
 ])
 
 OVERLOADED = set([

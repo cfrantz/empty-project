@@ -7,6 +7,8 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(glob(["**"]))
 
+VARIANT = "imgui-docking"
+
 genrule(
     name = "generate_python_bindings",
     srcs = [
@@ -16,14 +18,14 @@ genrule(
     outs = ["gui_generated.cpp"],
     cmd = """
         python3 $(location :generate_python_bindings.py) \
-            --include=external/imgui_rs/imgui-sys/third-party/imgui-master/imgui \
+            --include=external/imgui_rs/imgui-sys/third-party/{variant}/imgui \
             --output=$@
 
         echo "================================================================="
         echo "You need to manually copy the generated bindings:"
         echo "cp $@ third_party/imgui_rs/gui.cpp"
         echo "================================================================="
-    """,
+    """.format(variant=VARIANT),
     tags = ["manual"],
     tools = ["generate_python_bindings.py"],
 )
@@ -32,11 +34,12 @@ cc_library(
     name = "python_bindings",
     srcs = ["gui.cpp"],
     includes = [
-        "../../external/imgui_rs/imgui-sys/third-party/imgui-master/imgui",
+        "../../external/imgui_rs/imgui-sys/third-party/{variant}/imgui".format(variant=VARIANT),
     ],
     textual_hdrs = ["@imgui_rs//imgui-sys/third-party:imgui_srcs"],
     deps = [
-        "@imgui_rs//imgui-sys:imgui_master",
+        #"@imgui_rs//imgui-sys:imgui_master",
+        "@imgui_rs//imgui-sys:imgui_docking",
         "@pybind11",
     ],
 )

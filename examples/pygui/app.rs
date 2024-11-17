@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use glow::HasContext;
-use imgui::Context;
+use imgui::{ConfigFlags, Context};
 use imgui_glow_renderer::AutoRenderer;
 use imgui_sdl2_support::SdlPlatform;
 use pyo3::prelude::*;
@@ -99,6 +99,8 @@ impl Application {
         imgui
             .fonts()
             .add_font(&[imgui::FontSource::DefaultFontData { config: None }]);
+
+        imgui.io_mut().config_flags |= ConfigFlags::DOCKING_ENABLE;
 
         /* create platform and renderer */
         let platform = SdlPlatform::init(&mut imgui);

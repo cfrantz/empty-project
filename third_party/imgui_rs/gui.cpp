@@ -3,6 +3,8 @@
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 #include <limits>
+
+#define IMGUI_HAS_DOCK       1
 #include "imgui.h"
 #include "imgui_internal.h"
 namespace py = pybind11;
@@ -66,17 +68,6 @@ PYBIND11_MODULE(gui, gui)
     , py::arg("_z")
     , py::arg("_w")
     );
-    gui.def("create_context", &ImGui::CreateContext
-    , py::arg("shared_font_atlas") = nullptr
-    , py::return_value_policy::automatic_reference);
-    gui.def("destroy_context", &ImGui::DestroyContext
-    , py::arg("ctx") = nullptr
-    , py::return_value_policy::automatic_reference);
-    gui.def("get_current_context", &ImGui::GetCurrentContext
-    , py::return_value_policy::automatic_reference);
-    gui.def("set_current_context", &ImGui::SetCurrentContext
-    , py::arg("ctx")
-    , py::return_value_policy::automatic_reference);
     gui.def("get_io", &ImGui::GetIO
     , py::return_value_policy::reference);
     gui.def("get_style", &ImGui::GetStyle
@@ -183,6 +174,8 @@ PYBIND11_MODULE(gui, gui)
     , py::return_value_policy::automatic_reference);
     gui.def("get_window_draw_list", &ImGui::GetWindowDrawList
     , py::return_value_policy::automatic_reference);
+    gui.def("get_window_dpi_scale", &ImGui::GetWindowDpiScale
+    , py::return_value_policy::automatic_reference);
     gui.def("get_window_pos", &ImGui::GetWindowPos
     , py::return_value_policy::automatic_reference);
     gui.def("get_window_size", &ImGui::GetWindowSize
@@ -190,6 +183,8 @@ PYBIND11_MODULE(gui, gui)
     gui.def("get_window_width", &ImGui::GetWindowWidth
     , py::return_value_policy::automatic_reference);
     gui.def("get_window_height", &ImGui::GetWindowHeight
+    , py::return_value_policy::automatic_reference);
+    gui.def("get_window_viewport", &ImGui::GetWindowViewport
     , py::return_value_policy::automatic_reference);
     gui.def("set_next_window_pos", &ImGui::SetNextWindowPos
     , py::arg("pos")
@@ -214,6 +209,9 @@ PYBIND11_MODULE(gui, gui)
     , py::return_value_policy::automatic_reference);
     gui.def("set_next_window_bg_alpha", &ImGui::SetNextWindowBgAlpha
     , py::arg("alpha")
+    , py::return_value_policy::automatic_reference);
+    gui.def("set_next_window_viewport", &ImGui::SetNextWindowViewport
+    , py::arg("viewport_id")
     , py::return_value_policy::automatic_reference);
     gui.def("set_window_pos", py::overload_cast<const ImVec2 &, ImGuiCond>(&ImGui::SetWindowPos)
     , py::arg("pos")
@@ -1344,6 +1342,28 @@ PYBIND11_MODULE(gui, gui)
     gui.def("set_tab_item_closed", &ImGui::SetTabItemClosed
     , py::arg("tab_or_docked_window_label")
     , py::return_value_policy::automatic_reference);
+    gui.def("dock_space", &ImGui::DockSpace
+    , py::arg("id")
+    , py::arg("size") = ImVec2(0,0)
+    , py::arg("flags") = 0
+    , py::arg("window_class") = nullptr
+    , py::return_value_policy::automatic_reference);
+    gui.def("dock_space_over_viewport", &ImGui::DockSpaceOverViewport
+    , py::arg("viewport") = nullptr
+    , py::arg("flags") = 0
+    , py::arg("window_class") = nullptr
+    , py::return_value_policy::automatic_reference);
+    gui.def("set_next_window_dock_id", &ImGui::SetNextWindowDockID
+    , py::arg("dock_id")
+    , py::arg("cond") = 0
+    , py::return_value_policy::automatic_reference);
+    gui.def("set_next_window_class", &ImGui::SetNextWindowClass
+    , py::arg("window_class")
+    , py::return_value_policy::automatic_reference);
+    gui.def("get_window_dock_id", &ImGui::GetWindowDockID
+    , py::return_value_policy::automatic_reference);
+    gui.def("is_window_docked", &ImGui::IsWindowDocked
+    , py::return_value_policy::automatic_reference);
     gui.def("log_to_tty", &ImGui::LogToTTY
     , py::arg("auto_open_depth") = -1
     , py::return_value_policy::automatic_reference);
@@ -1446,6 +1466,12 @@ PYBIND11_MODULE(gui, gui)
     gui.def("get_background_draw_list", py::overload_cast<>(&ImGui::GetBackgroundDrawList)
     , py::return_value_policy::automatic_reference);
     gui.def("get_foreground_draw_list", py::overload_cast<>(&ImGui::GetForegroundDrawList)
+    , py::return_value_policy::automatic_reference);
+    gui.def("get_background_draw_list", py::overload_cast<ImGuiViewport *>(&ImGui::GetBackgroundDrawList)
+    , py::arg("viewport")
+    , py::return_value_policy::automatic_reference);
+    gui.def("get_foreground_draw_list", py::overload_cast<ImGuiViewport *>(&ImGui::GetForegroundDrawList)
+    , py::arg("viewport")
     , py::return_value_policy::automatic_reference);
     gui.def("is_rect_visible", py::overload_cast<const ImVec2 &>(&ImGui::IsRectVisible)
     , py::arg("size")
@@ -1615,6 +1641,20 @@ PYBIND11_MODULE(gui, gui)
     , py::arg("sz_drawvert")
     , py::arg("sz_drawidx")
     , py::return_value_policy::automatic_reference);
+    gui.def("update_platform_windows", &ImGui::UpdatePlatformWindows
+    , py::return_value_policy::automatic_reference);
+    gui.def("render_platform_windows_default", &ImGui::RenderPlatformWindowsDefault
+    , py::arg("platform_render_arg") = nullptr
+    , py::arg("renderer_render_arg") = nullptr
+    , py::return_value_policy::automatic_reference);
+    gui.def("destroy_platform_windows", &ImGui::DestroyPlatformWindows
+    , py::return_value_policy::automatic_reference);
+    gui.def("find_viewport_by_id", &ImGui::FindViewportByID
+    , py::arg("id")
+    , py::return_value_policy::automatic_reference);
+    gui.def("find_viewport_by_platform_handle", &ImGui::FindViewportByPlatformHandle
+    , py::arg("platform_handle")
+    , py::return_value_policy::automatic_reference);
     py::enum_<ImGuiWindowFlags_>(gui, "WindowFlags", py::arithmetic())
         .value("NONE", ImGuiWindowFlags_None)
         .value("NO_TITLE_BAR", ImGuiWindowFlags_NoTitleBar)
@@ -1637,6 +1677,7 @@ PYBIND11_MODULE(gui, gui)
         .value("NO_NAV_INPUTS", ImGuiWindowFlags_NoNavInputs)
         .value("NO_NAV_FOCUS", ImGuiWindowFlags_NoNavFocus)
         .value("UNSAVED_DOCUMENT", ImGuiWindowFlags_UnsavedDocument)
+        .value("NO_DOCKING", ImGuiWindowFlags_NoDocking)
         .value("NO_NAV", ImGuiWindowFlags_NoNav)
         .value("NO_DECORATION", ImGuiWindowFlags_NoDecoration)
         .value("NO_INPUTS", ImGuiWindowFlags_NoInputs)
@@ -1646,6 +1687,7 @@ PYBIND11_MODULE(gui, gui)
         .value("POPUP", ImGuiWindowFlags_Popup)
         .value("MODAL", ImGuiWindowFlags_Modal)
         .value("CHILD_MENU", ImGuiWindowFlags_ChildMenu)
+        .value("DOCK_NODE_HOST", ImGuiWindowFlags_DockNodeHost)
         .export_values();
 
     py::enum_<ImGuiInputTextFlags_>(gui, "InputTextFlags", py::arithmetic())
@@ -1840,6 +1882,7 @@ PYBIND11_MODULE(gui, gui)
         .value("ROOT_WINDOW", ImGuiFocusedFlags_RootWindow)
         .value("ANY_WINDOW", ImGuiFocusedFlags_AnyWindow)
         .value("NO_POPUP_HIERARCHY", ImGuiFocusedFlags_NoPopupHierarchy)
+        .value("DOCK_HIERARCHY", ImGuiFocusedFlags_DockHierarchy)
         .value("ROOT_AND_CHILD_WINDOWS", ImGuiFocusedFlags_RootAndChildWindows)
         .export_values();
 
@@ -1849,6 +1892,7 @@ PYBIND11_MODULE(gui, gui)
         .value("ROOT_WINDOW", ImGuiHoveredFlags_RootWindow)
         .value("ANY_WINDOW", ImGuiHoveredFlags_AnyWindow)
         .value("NO_POPUP_HIERARCHY", ImGuiHoveredFlags_NoPopupHierarchy)
+        .value("DOCK_HIERARCHY", ImGuiHoveredFlags_DockHierarchy)
         .value("ALLOW_WHEN_BLOCKED_BY_POPUP", ImGuiHoveredFlags_AllowWhenBlockedByPopup)
         .value("ALLOW_WHEN_BLOCKED_BY_ACTIVE_ITEM", ImGuiHoveredFlags_AllowWhenBlockedByActiveItem)
         .value("ALLOW_WHEN_OVERLAPPED", ImGuiHoveredFlags_AllowWhenOverlapped)
@@ -1859,6 +1903,16 @@ PYBIND11_MODULE(gui, gui)
         .value("DELAY_NORMAL", ImGuiHoveredFlags_DelayNormal)
         .value("DELAY_SHORT", ImGuiHoveredFlags_DelayShort)
         .value("NO_SHARED_DELAY", ImGuiHoveredFlags_NoSharedDelay)
+        .export_values();
+
+    py::enum_<ImGuiDockNodeFlags_>(gui, "DockNodeFlags", py::arithmetic())
+        .value("NONE", ImGuiDockNodeFlags_None)
+        .value("KEEP_ALIVE_ONLY", ImGuiDockNodeFlags_KeepAliveOnly)
+        .value("NO_DOCKING_IN_CENTRAL_NODE", ImGuiDockNodeFlags_NoDockingInCentralNode)
+        .value("PASSTHRU_CENTRAL_NODE", ImGuiDockNodeFlags_PassthruCentralNode)
+        .value("NO_SPLIT", ImGuiDockNodeFlags_NoSplit)
+        .value("NO_RESIZE", ImGuiDockNodeFlags_NoResize)
+        .value("AUTO_HIDE_TAB_BAR", ImGuiDockNodeFlags_AutoHideTabBar)
         .export_values();
 
     py::enum_<ImGuiDragDropFlags_>(gui, "DragDropFlags", py::arithmetic())
@@ -2089,6 +2143,10 @@ PYBIND11_MODULE(gui, gui)
         .value("NAV_NO_CAPTURE_KEYBOARD", ImGuiConfigFlags_NavNoCaptureKeyboard)
         .value("NO_MOUSE", ImGuiConfigFlags_NoMouse)
         .value("NO_MOUSE_CURSOR_CHANGE", ImGuiConfigFlags_NoMouseCursorChange)
+        .value("DOCKING_ENABLE", ImGuiConfigFlags_DockingEnable)
+        .value("VIEWPORTS_ENABLE", ImGuiConfigFlags_ViewportsEnable)
+        .value("DPI_ENABLE_SCALE_VIEWPORTS", ImGuiConfigFlags_DpiEnableScaleViewports)
+        .value("DPI_ENABLE_SCALE_FONTS", ImGuiConfigFlags_DpiEnableScaleFonts)
         .value("IS_SRGB", ImGuiConfigFlags_IsSRGB)
         .value("IS_TOUCH_SCREEN", ImGuiConfigFlags_IsTouchScreen)
         .export_values();
@@ -2099,6 +2157,9 @@ PYBIND11_MODULE(gui, gui)
         .value("HAS_MOUSE_CURSORS", ImGuiBackendFlags_HasMouseCursors)
         .value("HAS_SET_MOUSE_POS", ImGuiBackendFlags_HasSetMousePos)
         .value("RENDERER_HAS_VTX_OFFSET", ImGuiBackendFlags_RendererHasVtxOffset)
+        .value("PLATFORM_HAS_VIEWPORTS", ImGuiBackendFlags_PlatformHasViewports)
+        .value("HAS_MOUSE_HOVERED_VIEWPORT", ImGuiBackendFlags_HasMouseHoveredViewport)
+        .value("RENDERER_HAS_VIEWPORTS", ImGuiBackendFlags_RendererHasViewports)
         .export_values();
 
     py::enum_<ImGuiCol_>(gui, "Col", py::arithmetic())
@@ -2140,6 +2201,8 @@ PYBIND11_MODULE(gui, gui)
         .value("TAB_ACTIVE", ImGuiCol_TabActive)
         .value("TAB_UNFOCUSED", ImGuiCol_TabUnfocused)
         .value("TAB_UNFOCUSED_ACTIVE", ImGuiCol_TabUnfocusedActive)
+        .value("DOCKING_PREVIEW", ImGuiCol_DockingPreview)
+        .value("DOCKING_EMPTY_BG", ImGuiCol_DockingEmptyBg)
         .value("PLOT_LINES", ImGuiCol_PlotLines)
         .value("PLOT_LINES_HOVERED", ImGuiCol_PlotLinesHovered)
         .value("PLOT_HISTOGRAM", ImGuiCol_PlotHistogram)
@@ -2339,6 +2402,14 @@ PYBIND11_MODULE(gui, gui)
     IO.def_readwrite("font_allow_user_scaling", &ImGuiIO::FontAllowUserScaling);
     IO.def_readwrite("font_default", &ImGuiIO::FontDefault);
     IO.def_readwrite("display_framebuffer_scale", &ImGuiIO::DisplayFramebufferScale);
+    IO.def_readwrite("config_docking_no_split", &ImGuiIO::ConfigDockingNoSplit);
+    IO.def_readwrite("config_docking_with_shift", &ImGuiIO::ConfigDockingWithShift);
+    IO.def_readwrite("config_docking_always_tab_bar", &ImGuiIO::ConfigDockingAlwaysTabBar);
+    IO.def_readwrite("config_docking_transparent_payload", &ImGuiIO::ConfigDockingTransparentPayload);
+    IO.def_readwrite("config_viewports_no_auto_merge", &ImGuiIO::ConfigViewportsNoAutoMerge);
+    IO.def_readwrite("config_viewports_no_task_bar_icon", &ImGuiIO::ConfigViewportsNoTaskBarIcon);
+    IO.def_readwrite("config_viewports_no_decoration", &ImGuiIO::ConfigViewportsNoDecoration);
+    IO.def_readwrite("config_viewports_no_default_parent", &ImGuiIO::ConfigViewportsNoDefaultParent);
     IO.def_readwrite("mouse_draw_cursor", &ImGuiIO::MouseDrawCursor);
     IO.def_readwrite("config_mac_osx_behaviors", &ImGuiIO::ConfigMacOSXBehaviors);
     IO.def_readwrite("config_input_trickle_event_queue", &ImGuiIO::ConfigInputTrickleEventQueue);
@@ -2374,6 +2445,9 @@ PYBIND11_MODULE(gui, gui)
     IO.def("add_mouse_wheel_event", &ImGuiIO::AddMouseWheelEvent
     , py::arg("wh_x")
     , py::arg("wh_y")
+    , py::return_value_policy::automatic_reference);
+    IO.def("add_mouse_viewport_event", &ImGuiIO::AddMouseViewportEvent
+    , py::arg("id")
     , py::return_value_policy::automatic_reference);
     IO.def("add_focus_event", &ImGuiIO::AddFocusEvent
     , py::arg("focused")
@@ -2418,6 +2492,7 @@ PYBIND11_MODULE(gui, gui)
     IO.def_readwrite("mouse_pos", &ImGuiIO::MousePos);
     IO.def_readwrite("mouse_wheel", &ImGuiIO::MouseWheel);
     IO.def_readwrite("mouse_wheel_h", &ImGuiIO::MouseWheelH);
+    IO.def_readwrite("mouse_hovered_viewport", &ImGuiIO::MouseHoveredViewport);
     IO.def_readwrite("key_ctrl", &ImGuiIO::KeyCtrl);
     IO.def_readwrite("key_shift", &ImGuiIO::KeyShift);
     IO.def_readwrite("key_alt", &ImGuiIO::KeyAlt);
@@ -2437,6 +2512,7 @@ PYBIND11_MODULE(gui, gui)
     IO.def_readonly("mouse_down_owned_unless_popup_close", &ImGuiIO::MouseDownOwnedUnlessPopupClose);
     IO.def_readonly("mouse_down_duration", &ImGuiIO::MouseDownDuration);
     IO.def_readonly("mouse_down_duration_prev", &ImGuiIO::MouseDownDurationPrev);
+    IO.def_readonly("mouse_drag_max_distance_abs", &ImGuiIO::MouseDragMaxDistanceAbs);
     IO.def_readonly("mouse_drag_max_distance_sqr", &ImGuiIO::MouseDragMaxDistanceSqr);
     IO.def_readwrite("pen_pressure", &ImGuiIO::PenPressure);
     IO.def_readwrite("app_focus_lost", &ImGuiIO::AppFocusLost);
@@ -2480,6 +2556,16 @@ PYBIND11_MODULE(gui, gui)
     SizeCallbackData.def_readwrite("pos", &ImGuiSizeCallbackData::Pos);
     SizeCallbackData.def_readwrite("current_size", &ImGuiSizeCallbackData::CurrentSize);
     SizeCallbackData.def_readwrite("desired_size", &ImGuiSizeCallbackData::DesiredSize);
+    py::class_<ImGuiWindowClass> WindowClass(gui, "WindowClass");
+    WindowClass.def_readwrite("class_id", &ImGuiWindowClass::ClassId);
+    WindowClass.def_readwrite("parent_viewport_id", &ImGuiWindowClass::ParentViewportId);
+    WindowClass.def_readwrite("viewport_flags_override_set", &ImGuiWindowClass::ViewportFlagsOverrideSet);
+    WindowClass.def_readwrite("viewport_flags_override_clear", &ImGuiWindowClass::ViewportFlagsOverrideClear);
+    WindowClass.def_readwrite("tab_item_flags_override_set", &ImGuiWindowClass::TabItemFlagsOverrideSet);
+    WindowClass.def_readwrite("dock_node_flags_override_set", &ImGuiWindowClass::DockNodeFlagsOverrideSet);
+    WindowClass.def_readwrite("docking_always_tab_bar", &ImGuiWindowClass::DockingAlwaysTabBar);
+    WindowClass.def_readwrite("docking_allow_unclassed", &ImGuiWindowClass::DockingAllowUnclassed);
+    WindowClass.def(py::init<>());
     py::class_<ImGuiPayload> Payload(gui, "Payload");
     Payload.def_readwrite("data", &ImGuiPayload::Data);
     Payload.def_readwrite("data_size", &ImGuiPayload::DataSize);
@@ -2993,6 +3079,7 @@ PYBIND11_MODULE(gui, gui)
     DrawData.def_readwrite("display_pos", &ImDrawData::DisplayPos);
     DrawData.def_readwrite("display_size", &ImDrawData::DisplaySize);
     DrawData.def_readwrite("framebuffer_scale", &ImDrawData::FramebufferScale);
+    DrawData.def_readwrite("owner_viewport", &ImDrawData::OwnerViewport);
     DrawData.def(py::init<>());
     DrawData.def("clear", &ImDrawData::Clear
     , py::return_value_policy::automatic_reference);
@@ -3262,20 +3349,48 @@ PYBIND11_MODULE(gui, gui)
         .value("IS_PLATFORM_WINDOW", ImGuiViewportFlags_IsPlatformWindow)
         .value("IS_PLATFORM_MONITOR", ImGuiViewportFlags_IsPlatformMonitor)
         .value("OWNED_BY_APP", ImGuiViewportFlags_OwnedByApp)
+        .value("NO_DECORATION", ImGuiViewportFlags_NoDecoration)
+        .value("NO_TASK_BAR_ICON", ImGuiViewportFlags_NoTaskBarIcon)
+        .value("NO_FOCUS_ON_APPEARING", ImGuiViewportFlags_NoFocusOnAppearing)
+        .value("NO_FOCUS_ON_CLICK", ImGuiViewportFlags_NoFocusOnClick)
+        .value("NO_INPUTS", ImGuiViewportFlags_NoInputs)
+        .value("NO_RENDERER_CLEAR", ImGuiViewportFlags_NoRendererClear)
+        .value("TOP_MOST", ImGuiViewportFlags_TopMost)
+        .value("MINIMIZED", ImGuiViewportFlags_Minimized)
+        .value("NO_AUTO_MERGE", ImGuiViewportFlags_NoAutoMerge)
+        .value("CAN_HOST_OTHER_WINDOWS", ImGuiViewportFlags_CanHostOtherWindows)
         .export_values();
 
     py::class_<ImGuiViewport> Viewport(gui, "Viewport");
+    Viewport.def_readwrite("id", &ImGuiViewport::ID);
     Viewport.def_readwrite("flags", &ImGuiViewport::Flags);
     Viewport.def_readwrite("pos", &ImGuiViewport::Pos);
     Viewport.def_readwrite("size", &ImGuiViewport::Size);
     Viewport.def_readwrite("work_pos", &ImGuiViewport::WorkPos);
     Viewport.def_readwrite("work_size", &ImGuiViewport::WorkSize);
+    Viewport.def_readwrite("dpi_scale", &ImGuiViewport::DpiScale);
+    Viewport.def_readwrite("parent_viewport_id", &ImGuiViewport::ParentViewportId);
+    Viewport.def_readwrite("draw_data", &ImGuiViewport::DrawData);
+    Viewport.def_readwrite("renderer_user_data", &ImGuiViewport::RendererUserData);
+    Viewport.def_readwrite("platform_user_data", &ImGuiViewport::PlatformUserData);
+    Viewport.def_readwrite("platform_handle", &ImGuiViewport::PlatformHandle);
     Viewport.def_readwrite("platform_handle_raw", &ImGuiViewport::PlatformHandleRaw);
+    Viewport.def_readwrite("platform_window_created", &ImGuiViewport::PlatformWindowCreated);
+    Viewport.def_readwrite("platform_request_move", &ImGuiViewport::PlatformRequestMove);
+    Viewport.def_readwrite("platform_request_resize", &ImGuiViewport::PlatformRequestResize);
+    Viewport.def_readwrite("platform_request_close", &ImGuiViewport::PlatformRequestClose);
     Viewport.def(py::init<>());
     Viewport.def("get_center", &ImGuiViewport::GetCenter
     , py::return_value_policy::automatic_reference);
     Viewport.def("get_work_center", &ImGuiViewport::GetWorkCenter
     , py::return_value_policy::automatic_reference);
+    py::class_<ImGuiPlatformMonitor> PlatformMonitor(gui, "PlatformMonitor");
+    PlatformMonitor.def_readwrite("main_pos", &ImGuiPlatformMonitor::MainPos);
+    PlatformMonitor.def_readwrite("main_size", &ImGuiPlatformMonitor::MainSize);
+    PlatformMonitor.def_readwrite("work_pos", &ImGuiPlatformMonitor::WorkPos);
+    PlatformMonitor.def_readwrite("work_size", &ImGuiPlatformMonitor::WorkSize);
+    PlatformMonitor.def_readwrite("dpi_scale", &ImGuiPlatformMonitor::DpiScale);
+    PlatformMonitor.def(py::init<>());
     py::class_<ImGuiPlatformImeData> PlatformeData(gui, "PlatformeData");
     PlatformeData.def_readwrite("want_visible", &ImGuiPlatformImeData::WantVisible);
     PlatformeData.def_readwrite("input_pos", &ImGuiPlatformImeData::InputPos);
