@@ -1,5 +1,5 @@
 {
-  "checksum": "17948bd7f668cfbd580903ecafdcc6d6ed11541b02b956e8e1e37330c51bb616",
+  "checksum": "33e7e74ff1f2cd3d86f8acd6f70c4f048b8ed503a483490d14c30d01f502bc89",
   "crates": {
     "addr2line 0.19.0": {
       "name": "addr2line",
@@ -3250,6 +3250,10 @@
             {
               "id": "sdl2 0.34.5",
               "target": "sdl2"
+            },
+            {
+              "id": "send_wrapper 0.6.0",
+              "target": "send_wrapper"
             },
             {
               "id": "winit 0.29.15",
@@ -7672,6 +7676,45 @@
         "MIT"
       ],
       "license_file": null
+    },
+    "send_wrapper 0.6.0": {
+      "name": "send_wrapper",
+      "version": "0.6.0",
+      "package_url": "https://github.com/thk1/send_wrapper",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/send_wrapper/0.6.0/download",
+          "sha256": "cd0b0ec5f1c1ca621c432a25813d8d60c88abe6d3e08a3eb9cf37d97a0fe3d73"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "send_wrapper",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "send_wrapper",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "0.6.0"
+      },
+      "license": "MIT/Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE.txt"
     },
     "serde 1.0.215": {
       "name": "serde",
@@ -12356,6 +12399,7 @@
     "parking_lot 0.12.1",
     "pyo3 0.22.6",
     "sdl2 0.34.5",
+    "send_wrapper 0.6.0",
     "winit 0.29.15"
   ],
   "direct_dev_deps": []

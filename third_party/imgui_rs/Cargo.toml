@@ -24,3 +24,6 @@ sdl2 = "0.34.5"
 
 # imgui-winit-support
 winit = { version = "0.29.3", default-features = false }
+
+# Defeat some multi-threading stupidity.
+send_wrapper = "0.6.0"

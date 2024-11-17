@@ -8,9 +8,10 @@ use pyo3::prelude::*;
 use python_gui;
 use sdl2::{
     event::Event,
-    video::{GLProfile, Window},
+    video::{GLProfile, SwapInterval, Window},
     EventPump,
 };
+use send_wrapper::SendWrapper;
 
 // Create a new glow context.
 fn glow_context(window: &Window) -> glow::Context {
@@ -21,28 +22,43 @@ fn glow_context(window: &Window) -> glow::Context {
 
 #[pyclass(unsendable)]
 struct Application {
-    window: Window,
+    window: SendWrapper<Window>,
     _gl_context: sdl2::video::GLContext,
     platform: SdlPlatform,
     event_pump: EventPump,
     renderer: AutoRenderer,
     imgui: Context,
+    dpi: f32,
 }
 
-impl Application {
-    fn rust_window(ui: &imgui::Ui) {
-        ui.window("Rust Window").build(|| {
-            ui.text("Hello from Rust!");
-        });
+#[pyclass(unsendable)]
+#[repr(transparent)]
+struct UiContext {
+    pub ui: &'static imgui::Ui,
+}
+
+impl UiContext {
+    pub fn new(ui: &imgui::Ui) -> Self {
+        unsafe {
+            Self {
+                ui: std::mem::transmute(ui),
+            }
+        }
     }
 }
+
+impl Application {}
 
 #[pymethods]
 impl Application {
     #[new]
     pub fn new() -> Result<Self> {
-        let sdl = sdl2::init().map_err(|e| anyhow!("SDL init: {}", e))?;
-        let video_subsystem = sdl.video().map_err(|e| anyhow!("SDL video: {}", e))?;
+        let sdl = sdl2::init().map_err(|e| anyhow!("SDL init: {e}"))?;
+        let video_subsystem = sdl.video().map_err(|e| anyhow!("SDL video: {e}"))?;
+
+        let (dpi, _hdpi, _vdpi) = video_subsystem
+            .display_dpi(0)
+            .map_err(|e| anyhow!("SDL display_dpi: {e}"))?;
 
         /* hint SDL to initialize an OpenGL 3.3 core profile context */
         let gl_attr = video_subsystem.gl_attr();
@@ -65,7 +81,9 @@ impl Application {
         window.gl_make_current(&_gl_context).unwrap();
 
         /* enable vsync to cap framerate */
-        window.subsystem().gl_set_swap_interval(1).unwrap();
+        video_subsystem
+            .gl_set_swap_interval(SwapInterval::VSync)
+            .map_err(|e| anyhow!("SDL swap_interval: {e}"))?;
 
         /* create new glow and imgui contexts */
         let gl = glow_context(&window);
@@ -90,46 +108,69 @@ impl Application {
         let event_pump = sdl.event_pump().unwrap();
 
         Ok(Application {
-            window,
+            window: SendWrapper::new(window),
             _gl_context,
             platform,
             event_pump,
             renderer,
             imgui,
+            dpi,
         })
     }
 
-    pub fn prepare_frame(&mut self) -> bool {
+    pub fn set_scale(&mut self, scale: f32) {
+        let mut scale = scale;
+        if scale == 0.0 {
+            scale = self.dpi / 96.0;
+        }
+        let style = self.imgui.style_mut();
+        style.scale_all_sizes(scale);
+        self.imgui.io_mut().font_global_scale = scale;
+    }
+
+    pub fn prepare_frame(&mut self) -> Option<UiContext> {
         for event in self.event_pump.poll_iter() {
             /* pass all events to imgui platfrom */
             self.platform.handle_event(&mut self.imgui, &event);
 
             if let Event::Quit { .. } = event {
-                return false;
+                return None;
             }
         }
 
         /* call prepare_frame before calling imgui.new_frame() */
         self.platform
             .prepare_frame(&mut self.imgui, &self.window, &self.event_pump);
-        let ui = self.imgui.new_frame();
+
+        let ui = UiContext::new(self.imgui.new_frame());
+
         /* create imgui UI here */
         //ui.show_demo_window(&mut true);
-        Self::rust_window(&ui);
-        true
+        //Self::rust_window(&ui);
+        Some(ui)
     }
 
-    pub fn render_frame(&mut self) {
+    pub fn render_frame(&mut self, py: Python<'_>) {
         let draw_data = self.imgui.render();
         unsafe { self.renderer.gl_context().clear(glow::COLOR_BUFFER_BIT) };
         if draw_data.draw_lists_count() > 0 {
             self.renderer.render(draw_data).unwrap();
         }
-        self.window.gl_swap_window();
+        py.allow_threads(|| self.window.gl_swap_window());
+    }
+
+    fn rust_fragment(&self, ctx: &mut UiContext) {
+        ctx.ui.text("This is a rust fragment!");
+    }
+
+    fn rust_window(&self, ctx: &mut UiContext) {
+        ctx.ui.window("Rust Window").build(|| {
+            ctx.ui.text("Hello from Rust!");
+        });
     }
 }
 
-#[pymodule]
+#[pymodule(name = "libapp")]
 fn app(m: &Bound<'_, PyModule>) -> PyResult<()> {
     python_gui::as_submodule_of(m)?;
     m.add_class::<Application>()?;
